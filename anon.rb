@@ -53,5 +53,10 @@ class Annon
 
 end
 
-anonymize = Annon.new("donations-original_with_secure_sample.arff")
-anonymize.process
+if __FILE__ == $0
+  abort "#{$0} file_name" unless ARGV.size == 1
+  anonymize = Annon.new(ARGV[0])
+  anonymize.process
+end
+
+
