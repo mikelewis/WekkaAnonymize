@@ -1,9 +1,7 @@
 require 'csv'
 
 class Anon
-  attr_reader :secure_attrs
-  attr_reader :columns
-  attr_reader :buckets
+  attr_reader :secure_attrs, :columns, :buckets
   def initialize(file_name)
     @file_name = file_name
     pre_process
