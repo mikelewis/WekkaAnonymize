@@ -2,4 +2,5 @@
 *.doc
 *.docx
 *.swp
+out*
 *.rtf

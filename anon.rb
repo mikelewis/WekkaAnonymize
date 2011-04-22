@@ -6,12 +6,28 @@ class Annon
   attr_reader :buckets
   def initialize(file_name)
     @file_name = file_name
-    pre_proccess
+    pre_process
+  end
+
+  def process
+    File.open(@file_name, 'r') do |data_file|
+      File.open("out_#{@file_name}", 'w') do |out_file|
+        data_file.each do |line|
+          csved = line.parse_csv
+          unless line.start_with?('@') || line.chomp.empty?
+            @secure_attrs.each do |secure_attr|
+              p secure_attr
+            end
+          end
+          out_file.puts csved.to_csv
+        end
+      end
+    end
   end
 
   private
 
-  def pre_proccess
+  def pre_process
     @columns = {}
     @secure_attrs = []
     @buckets = {}
@@ -37,6 +53,4 @@ class Annon
 end
 
 anonymize = Annon.new("donations-original_with_secure.arff")
-p anonymize.secure_attrs
-p anonymize.columns
-p anonymize.buckets
+anonymize.process
