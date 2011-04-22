@@ -1,6 +1,6 @@
 require 'csv'
 
-class Annon
+class Anon
   attr_reader :secure_attrs
   attr_reader :columns
   attr_reader :buckets
@@ -55,7 +55,7 @@ end
 
 if __FILE__ == $0
   abort "#{$0} file_name" unless ARGV.size == 1
-  anonymize = Annon.new(ARGV[0])
+  anonymize = Anon.new(ARGV[0])
   anonymize.process
 end
 
