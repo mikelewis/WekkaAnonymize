@@ -16,7 +16,8 @@ class Annon
           csved = line.parse_csv
           unless line.start_with?('@') || line.chomp.empty?
             @secure_attrs.each do |secure_attr|
-              p secure_attr
+              until(rand_val = @buckets[csved[-2].to_sym][secure_attr].sample) != csved[secure_attr] do end
+              csved[secure_attr] = rand_val
             end
           end
           out_file.puts csved.to_csv
@@ -52,5 +53,5 @@ class Annon
 
 end
 
-anonymize = Annon.new("donations-original_with_secure.arff")
+anonymize = Annon.new("donations-original_with_secure_sample.arff")
 anonymize.process
