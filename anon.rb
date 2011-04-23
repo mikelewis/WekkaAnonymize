@@ -27,7 +27,7 @@ class Anon
         end
         out_file.puts "@data"
         data_file.each do |line|
-          csved = line.split(',')
+          csved = line.chomp.split(',')
           #skip instances with security 2
           securty_val = csved.pop
           next if securty_val == "2"
@@ -65,7 +65,7 @@ class Anon
         line.match(/@secure\s+(\w+)/){|m|@secure_attrs << @columns[m[1]]}
       end
       data_file.each do |line|
-        csved = line.split(',')
+        csved = line.chomp.split(',')
         @secure_attrs.each do |secure_attr|
           ((@buckets[csved[-2]] ||= {})[secure_attr] ||= []) << [data_file.lineno, csved[secure_attr]]
         end
