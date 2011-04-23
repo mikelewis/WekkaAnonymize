@@ -25,7 +25,7 @@ class Anon
     File.open(@file_name, 'r') do |data_file|
       File.open("out_#{@file_name}", 'w') do |out_file|
         until (line = data_file.gets).start_with?("@data") do
-          out_file.puts line unless line.start_with?("@secure") || line.match("@attribute security")
+          out_file.puts line unless line.start_with?("@secure") || line.start_with?("@attribute security")
         end
         out_file.puts "@data"
         data_file.each do |line|
