@@ -25,16 +25,19 @@ class Anon
       File.open("out_#{@file_name}", 'w') do |out_file|
         data_file.each do |line|
           csved = line.parse_csv
-          unless line.start_with?('@') || line.chomp.empty?
+          #skip instances with security 2
+          next if csved[-1] == "2"
+          unless (line.start_with?('@') || line.chomp.empty?) || csved[-1] == "0"
             @secure_attrs.each do |secure_attr|
-              bucket = csved[-2].to_sym
+              bucket = csved[-2]
+
               rand_val = 
                 if @buckets[bucket][secure_attr].size == 1
                   @buckets[bucket][secure_attr].first[1]
                 else
-                  #until(val = @buckets[bucket][secure_attr].destructive_sample) != csved[secure_attr] do end
                   @buckets[bucket][secure_attr].destructive_sample_except([data_file.lineno, csved[secure_attr]])[1]
                 end
+
               csved[secure_attr] = rand_val
             end
           end
@@ -62,7 +65,7 @@ class Anon
           #csv lines
           csved = line.parse_csv
           @secure_attrs.each do |secure_attr|
-            ((@buckets[csved[-2].to_sym] ||= {})[secure_attr] ||= []) << [data_file.lineno, csved[secure_attr]]
+            ((@buckets[csved[-2]] ||= {})[secure_attr] ||= []) << [data_file.lineno, csved[secure_attr]]
           end
         end
       end
@@ -83,10 +86,14 @@ end
 if __FILE__ == $0
   abort "#{$0} file_name" unless ARGV.size == 1
   puts "Preproccessing"
-  anonymize = Anon.new(ARGV[0])
-  puts "Processing"
-  anonymize.process
-  puts "Done"
+  begin
+    anonymize = Anon.new(ARGV[0])
+    puts "Processing"
+    anonymize.process
+    puts "Done"
+  rescue RuntimeError => e
+    p "Error! : #{e.message}"
+  end
 end
 
 
