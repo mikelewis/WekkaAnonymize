@@ -24,16 +24,17 @@ class Anon
     File.open(@file_name, 'r') do |data_file|
       File.open("out_#{@file_name}", 'w') do |out_file|
         until (line = data_file.gets).start_with?("@data") do
-          out_file.puts line
+          out_file.puts line unless line.start_with?("@secure") || line.match("@attribute security")
         end
         out_file.puts "@data"
         data_file.each do |line|
           csved = line.parse_csv
           #skip instances with security 2
-          next if csved[-1] == "2"
-          unless csved[-1] == "0"
+          securty_val = csved.pop
+          next if securty_val == "2"
+          unless line.chomp.empty? || securty_val == "0"
             @secure_attrs.each do |secure_attr|
-              bucket = csved[-2]
+              bucket = csved[-1]
 
               rand_val = 
                 if @buckets[bucket][secure_attr].size == 1
