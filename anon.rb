@@ -23,11 +23,15 @@ class Anon
   def process
     File.open(@file_name, 'r') do |data_file|
       File.open("out_#{@file_name}", 'w') do |out_file|
+        until (line = data_file.gets).start_with?("@data") do
+          out_file.puts line
+        end
+        out_file.puts "@data"
         data_file.each do |line|
           csved = line.parse_csv
           #skip instances with security 2
           next if csved[-1] == "2"
-          unless (line.start_with?('@') || line.chomp.empty?) || csved[-1] == "0"
+          unless csved[-1] == "0"
             @secure_attrs.each do |secure_attr|
               bucket = csved[-2]
 
@@ -54,19 +58,17 @@ class Anon
     @secure_attrs = []
     @buckets = {}
     File.open(@file_name, 'r') do |data_file|
+      until (line = data_file.gets).start_with?("@data") do 
+        #attributes
+        line.match(/@attribute\s+(\w+)/){|m| @columns[m[1]] = @columns.size}
+        #secure attrs(assuming these are listed after attributes)
+        line.match(/@secure\s+(\w+)/){|m|@secure_attrs << @columns[m[1]]}
+      end
       data_file.each do |line|
-        next if line.chomp.empty?
-        if line.start_with?('@')
-          #attributes
-          line.match(/@attribute\s+(\w+)/){|m| @columns[m[1]] = @columns.size}
-          #secure attrs(assuming these are listed after attributes)
-          line.match(/@secure\s+(\w+)/){|m|@secure_attrs << @columns[m[1]]}
-        else
-          #csv lines
-          csved = line.parse_csv
-          @secure_attrs.each do |secure_attr|
-            ((@buckets[csved[-2]] ||= {})[secure_attr] ||= []) << [data_file.lineno, csved[secure_attr]]
-          end
+        #csv lines
+        csved = line.parse_csv
+        @secure_attrs.each do |secure_attr|
+          ((@buckets[csved[-2]] ||= {})[secure_attr] ||= []) << [data_file.lineno, csved[secure_attr]]
         end
       end
     end
