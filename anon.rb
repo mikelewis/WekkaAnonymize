@@ -18,6 +18,7 @@ class Anon
   def initialize(file_name)
     @file_name = file_name
     pre_process
+    check_validity
   end
 
   def process
@@ -73,7 +74,6 @@ class Anon
         end
       end
     end
-    check_validity
   end
 
   def check_validity
